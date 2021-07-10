@@ -14,9 +14,15 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _biometricsLogin() {
     return ElevatedButton(
-        onPressed: () {
-          FlutterLocker.save(SaveSecretRequest(
-              key, _pincode, AndroidPrompt("Authenticate", "Cancel")));
+        onPressed: () async {
+          String _retrievedPin = await FlutterLocker.retrieve(RetrieveSecretRequest(key, AndroidPrompt("Login with Fingerprint", "Cancel"), IOsPrompt("Login with Fingerprint")));
+          String _pinFromApi = await Api().fetchData();
+          if (_retrievedPin == _pinFromApi) {
+            print("Success Login from biometrics");
+            Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => HomePage()));
+          }
+
         },
         child: Text("Login with Biometrics"));
   }
@@ -38,6 +44,8 @@ class _LoginPageState extends State<LoginPage> {
                 onPressed: () async {
                   String _pin = await Api().fetchData();
                   if (_pincode == _pin) {
+                    await FlutterLocker.save(SaveSecretRequest(
+                        key, _pincode, AndroidPrompt("Authenticate", "Cancel")));
                     Navigator.of(context).push(
                         MaterialPageRoute(builder: (context) => HomePage()));
                     print("Success!");
