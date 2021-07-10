@@ -15,8 +15,11 @@ class _LoginPageState extends State<LoginPage> {
   Widget _biometricsLogin() {
     return ElevatedButton(
         onPressed: () async {
+          //retrieve the saved pincode
           String _retrievedPin = await FlutterLocker.retrieve(RetrieveSecretRequest(key, AndroidPrompt("Login with Fingerprint", "Cancel"), IOsPrompt("Login with Fingerprint")));
+          //fetch correct pincode from API
           String _pinFromApi = await Api().fetchData();
+          //compare the pincode saved from biometrics with API
           if (_retrievedPin == _pinFromApi) {
             print("Success Login from biometrics");
             Navigator.of(context).push(
@@ -30,7 +33,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(title: Text("Biometrics Login API"),),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -43,7 +46,9 @@ class _LoginPageState extends State<LoginPage> {
             TextButton(
                 onPressed: () async {
                   String _pin = await Api().fetchData();
+                  //to check if the pin is same from the backend
                   if (_pincode == _pin) {
+                    //save the pincode so that, next time we can retrieve it
                     await FlutterLocker.save(SaveSecretRequest(
                         key, _pincode, AndroidPrompt("Authenticate", "Cancel")));
                     Navigator.of(context).push(
